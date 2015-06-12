@@ -1,0 +1,6 @@
+__pycache__
+*.py{c,o}
+build
+dist
+MANIFEST
+*.egg-info
