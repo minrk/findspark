@@ -4,11 +4,11 @@ If SPARK_HOME is defined, it will be used to put pyspark on sys.path.
 Otherwise, common locations for spark (currently only Homebrew's default) will be searched.
 """
 
-import glob
+from glob import glob
 import os
 import sys
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 def find_spark(spark_home=None):
     """Find spark and make pyspark importable.
