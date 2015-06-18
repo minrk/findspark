@@ -4,7 +4,7 @@ If SPARK_HOME is defined, it will be used to put pyspark on sys.path.
 Otherwise, common locations for spark (currently only Homebrew's default) will be searched.
 """
 
-import glob
+from glob import glob
 import os
 import sys
 
