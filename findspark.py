@@ -12,7 +12,7 @@ __version__ = '0.0.2'
 
 
 def find():
-    """Find a local spark installation
+    """Find a local spark installation.
 
     Will first check the SPARK_HOME env variable, and otherwise
     search common installation locations, e.g. from homebrew
@@ -30,7 +30,7 @@ def find():
 
     if not spark_home:
         raise ValueError("Couldn't find Spark, make sure SPARK_HOME env is set"
-                         " or Spark is in an expected location (e.g. from homebrew installation).")
+                         "or Spark is in an expected location (e.g. from homebrew installation).")
 
     return spark_home
 
