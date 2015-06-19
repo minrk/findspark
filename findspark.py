@@ -30,7 +30,7 @@ def find():
 
     if not spark_home:
         raise ValueError("Couldn't find Spark, make sure SPARK_HOME env is set"
-                         "or Spark is in an expected location (e.g. from homebrew installation).")
+                         " or Spark is in an expected location (e.g. from homebrew installation).")
 
     return spark_home
 
