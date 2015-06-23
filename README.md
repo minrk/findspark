@@ -33,3 +33,11 @@ To verify the automatically detected location, call
 ```python
 findspark.find()
 ```
+
+Findspark can also add to .bashrc and .cshrc configuration files so that the enviornment variables will be properly set whenever a new shell is opened. This is enabled by setting the optional argument `persist_changes` to true.
+
+```python
+findspark.init(persist_changes=True)
+```
+
+If changes are persisted, findspark will not need to be called again unless the spark installation is moved.

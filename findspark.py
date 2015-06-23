@@ -8,7 +8,7 @@ from glob import glob
 import os
 import sys
 
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 
 
 def find():
@@ -35,7 +35,42 @@ def find():
     return spark_home
 
 
-def init(spark_home=None):
+def persist(spark_home, spark_python, py4j):
+    """Persists changes to enviornment.
+
+    Adds lines to .bashrc to set enviornment variables including
+    the adding of dependencies to the system path. Currently only 
+    works for Bash.
+
+    Parameters
+    ----------
+    spark_home : str
+        Path to Spark installation.
+    spark_python : str
+        Path to python subdirectory of Spark installation.
+    py4j : str
+        Path to py4j library.
+    """
+
+    bashrc_location = os.path.expanduser("~/.bashrc")
+
+    with open(bashrc_location, 'a') as bashrc:
+        bashrc.write("\n# Added by findspark\n")
+        bashrc.write("export SPARK_HOME=" + spark_home + "\n")
+        bashrc.write("export PYTHONPATH=" + spark_python + ":" + 
+                     py4j + ":$PYTHONPATH\n\n")
+    
+    cshrc_location = os.path.expanduser("~/.cshrc")
+    
+    with open(cshrc_location, 'a') as cshrc:
+        cshrc.write("\n# Added by findspark\n")
+        cshrc.write("setenv SPARK_HOME " + spark_home + "\n")
+        cshrc.write("setenv PYTHONPATH \"" + spark_python + ":" +
+                    py4j + ":\"$PYTHONPATH")
+ 
+
+
+def init(spark_home=None, persist_changes=False):
     """Make pyspark importable.
 
     Sets environmental variables and adds dependencies to sys.path.
@@ -46,6 +81,9 @@ def init(spark_home=None):
     spark_home : str, optional, default = None
         Path to Spark installation, will try to find automatically
         if not provided
+    persist_changes : bool, optional, default = False
+        Whether to attempt to persist changes (currently only by
+        appending to bashrc).
     """
 
     if not spark_home:
@@ -58,3 +96,6 @@ def init(spark_home=None):
     spark_python = os.path.join(spark_home, 'python')
     py4j = glob(os.path.join(spark_python, 'lib', 'py4j-*.zip'))[0]
     sys.path[:0] = [spark_python, py4j]
+    
+    if persist_changes:
+        persist(spark_home, spark_python, py4j) 
