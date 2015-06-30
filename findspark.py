@@ -71,7 +71,7 @@ def change_rc(spark_home, spark_python, py4j):
                     py4j + ":\"$PYTHONPATH")
  
 
-def edit_ipython_profile(spark_home, spark_python, py4j, name):
+def edit_ipython_profile(spark_home, spark_python, py4j):
     """Adds a startup file to the current IPython profile to import pyspark.
     
     The startup file sets the required enviornment variables and imports pyspark.
@@ -84,20 +84,15 @@ def edit_ipython_profile(spark_home, spark_python, py4j, name):
         Path to python subdirectory of Spark installation.
     py4j : str
         Path to py4j library.
-    name : str
-        Name of profile to create or append to.
     """
 
     ip = get_ipython()
 
-    if ip and name is None:
+    if ip:
         profile_dir = ip.profile_dir.location
     else:
         from IPython.utils.path import locate_profile
-        if name:
-            profile_dir = locate_profile(name)
-        else:
-            profile_dir = locate_profile()
+        profile_dir = locate_profile()
 
     startup_file_loc = os.path.join(profile_dir, "startup", "findspark.py")
         
@@ -109,7 +104,7 @@ def edit_ipython_profile(spark_home, spark_python, py4j, name):
         startup_file.write("import pyspark\n")       
         
 
-def init(spark_home=None, edit_rc=False, edit_profile=False, profile_name=None):
+def init(spark_home=None, edit_rc=False, edit_profile=False):
     """Make pyspark importable.
 
     Sets environmental variables and adds dependencies to sys.path.
@@ -126,9 +121,6 @@ def init(spark_home=None, edit_rc=False, edit_profile=False, profile_name=None):
     edit_profile : bool, optional, default = False
         Whether to create a create an IPython startup file to automatically
         configure and import pyspark.
-    profile_name : str, optional, default = None
-        Name of the IPython profile to create or edit if edit_profile is True.
-        Uses current profile if not set.
     """
 
     if not spark_home:
@@ -146,4 +138,4 @@ def init(spark_home=None, edit_rc=False, edit_profile=False, profile_name=None):
         change_rc(spark_home, spark_python, py4j) 
     
     if edit_profile:
-        edit_ipython_profile(spark_home, spark_python, py4j, profile_name)
+        edit_ipython_profile(spark_home, spark_python, py4j)
