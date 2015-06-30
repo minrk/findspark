@@ -34,10 +34,17 @@ To verify the automatically detected location, call
 findspark.find()
 ```
 
+Findspark can add a startup file to the current IPython profile so that the enviornment vaiables will be properly set and pyspark will be imported upon IPython startup. This file is created when `edit_profile` is set to true. A profile other than the current one can be modified using the `profile_name` option.
+
+```ipython --profile=myprofile
+findspark.init('/path/to/spark_home', edit_profile=True)
+findspark.init('/path/to/spark_home', edit_profile=True, profile_name='otherprofile')
+```
+
 Findspark can also add to .bashrc and .cshrc configuration files so that the enviornment variables will be properly set whenever a new shell is opened. This is enabled by setting the optional argument `persist_changes` to true.
 
 ```python
-findspark.init(persist_changes=True)
+findspark.init('/path/to/spark_home, 'edit_rc=True)
 ```
 
 If changes are persisted, findspark will not need to be called again unless the spark installation is moved.

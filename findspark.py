@@ -8,6 +8,7 @@ from glob import glob
 import os
 import sys
 import subprocess
+from IPython import get_ipython
 
 __version__ = '0.0.4'
 
@@ -71,12 +72,9 @@ def change_rc(spark_home, spark_python, py4j):
  
 
 def edit_ipython_profile(spark_home, spark_python, py4j, name):
-    """Creates or appends to an IPython profile to automatically import pyspark.
+    """Adds a startup file to the current IPython profile to import pyspark.
     
-    Adds lines to the ipython_config file to be run at startup of the IPython
-    interpreter for a given profile, creating the profile if it does not exist.
-    These lines set appropriate enviornment variables and import the pyspark 
-    library upon IPython startup.
+    The startup file sets the required enviornment variables and imports pyspark.
 
     Parameters
     ----------
@@ -89,28 +87,29 @@ def edit_ipython_profile(spark_home, spark_python, py4j, name):
     name : str
         Name of profile to create or append to.
     """
-    subprocess.call(["ipython", "profile", "create", name])
 
-    config_dir = subprocess.check_output(["ipython", "profile", "locate", name]).strip()
-    config_filename = os.path.join(config_dir, "ipython_config.py")
+    ip = get_ipython()
+
+    if ip and name is None:
+        profile_dir = ip.profile_dir.location
+    else:
+        from IPython.utils.path import locate_profile
+        if name:
+            profile_dir = locate_profile(name)
+        else:
+            profile_dir = locate_profile()
+
+    startup_file_loc = os.path.join(profile_dir, "startup", "findspark.py")
         
-    with open(config_filename, 'a') as config_file:
+    with open(startup_file_loc, 'w') as startup_file:
         #Lines of code to be run when IPython starts
-        lines = ["import sys, os"]
-        lines.append("os.environ['SPARK_HOME'] = '" + spark_home + "'")
-        lines.append("sys.path[:0] = " + str([spark_python, py4j]))
-        lines.append("import pyspark")       
-
-        #Code to be placed in config file
-        config_file.write("\n#pyspark configuration added by findspark\n")
-        config_file.write("to_exec = " + str(lines) + "\n")
-        config_file.write("try:\n")
-        config_file.write("    c.InteractiveShellApp.exec_lines[:0] = to_exec\n")
-        config_file.write("except TypeError:\n")
-        config_file.write("    c.InteractiveShellApp.exec_lines = to_exec\n")
+        startup_file.write("import sys, os\n")
+        startup_file.write("os.environ['SPARK_HOME'] = '" + spark_home + "'\n")
+        startup_file.write("sys.path[:0] = " + str([spark_python, py4j]) + "\n")
+        startup_file.write("import pyspark\n")       
         
 
-def init(spark_home=None, edit_rc=False, edit_profile=False, profile_name='spark'):
+def init(spark_home=None, edit_rc=False, edit_profile=False, profile_name=None):
     """Make pyspark importable.
 
     Sets environmental variables and adds dependencies to sys.path.
@@ -125,10 +124,11 @@ def init(spark_home=None, edit_rc=False, edit_profile=False, profile_name='spark
         Whether to attempt to persist changes by appending to shell
         config.
     edit_profile : bool, optional, default = False
-        Whether to create an IPython profile that atuomatically configures
-        environment variables and imports spark.
-    profile_name : bool, optional, default = "spark"
+        Whether to create a create an IPython startup file to automatically
+        configure and import pyspark.
+    profile_name : str, optional, default = None
         Name of the IPython profile to create or edit if edit_profile is True.
+        Uses current profile if not set.
     """
 
     if not spark_home:
