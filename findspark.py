@@ -40,9 +40,10 @@ def find():
 def change_rc(spark_home, spark_python, py4j):
     """Persists changes to enviornment by changing shell config.
 
-    Adds lines to .bashrc to set enviornment variables including
-    the adding of dependencies to the system path. Currently only 
-    works for Bash and (t)csh.
+    Adds lines to .bashrc and .cshrc to set enviornment variables 
+    including the adding of dependencies to the system path. Will only
+    edit these files if they already exist. Currently only works for bash 
+    and (t)csh.
 
     Parameters
     ----------
@@ -56,19 +57,21 @@ def change_rc(spark_home, spark_python, py4j):
 
     bashrc_location = os.path.expanduser("~/.bashrc")
 
-    with open(bashrc_location, 'a') as bashrc:
-        bashrc.write("\n# Added by findspark\n")
-        bashrc.write("export SPARK_HOME=" + spark_home + "\n")
-        bashrc.write("export PYTHONPATH=" + spark_python + ":" + 
-                     py4j + ":$PYTHONPATH\n\n")
+    if os.path.isfile(bashrc_location):
+        with open(bashrc_location, 'a') as bashrc:
+            bashrc.write("\n# Added by findspark\n")
+            bashrc.write("export SPARK_HOME=" + spark_home + "\n")
+            bashrc.write("export PYTHONPATH=" + spark_python + ":" + 
+                         py4j + ":$PYTHONPATH\n\n")
     
     cshrc_location = os.path.expanduser("~/.cshrc")
     
-    with open(cshrc_location, 'a') as cshrc:
-        cshrc.write("\n# Added by findspark\n")
-        cshrc.write("setenv SPARK_HOME " + spark_home + "\n")
-        cshrc.write("setenv PYTHONPATH \"" + spark_python + ":" +
-                    py4j + ":\"$PYTHONPATH")
+    if os.path.isfile(cshrc_location):
+        with open(cshrc_location, 'a') as cshrc:
+            cshrc.write("\n# Added by findspark\n")
+            cshrc.write("setenv SPARK_HOME " + spark_home + "\n")
+            cshrc.write("setenv PYTHONPATH \"" + spark_python + ":" +
+                        py4j + ":\"$PYTHONPATH")
  
 
 def edit_ipython_profile(spark_home, spark_python, py4j):

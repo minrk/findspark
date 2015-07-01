@@ -40,10 +40,10 @@ Findspark can add a startup file to the current IPython profile so that the envi
 findspark.init('/path/to/spark_home', edit_profile=True)
 ```
 
-Findspark can also add to .bashrc and .cshrc configuration files so that the enviornment variables will be properly set whenever a new shell is opened. This is enabled by setting the optional argument `persist_changes` to true.
+Findspark can also add to .bashrc and .cshrc configuration files if they are present so that the enviornment variables will be properly set whenever a new shell is opened. This is enabled by setting the optional argument `edit_rc` to true.
 
 ```python
-findspark.init('/path/to/spark_home, 'edit_rc=True)
+findspark.init('/path/to/spark_home', edit_rc=True)
 ```
 
 If changes are persisted, findspark will not need to be called again unless the spark installation is moved.
