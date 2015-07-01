@@ -40,10 +40,9 @@ def find():
 def change_rc(spark_home, spark_python, py4j):
     """Persists changes to enviornment by changing shell config.
 
-    Adds lines to .bashrc and .cshrc to set enviornment variables 
+    Adds lines to .bashrc to set enviornment variables 
     including the adding of dependencies to the system path. Will only
-    edit these files if they already exist. Currently only works for bash 
-    and (t)csh.
+    edit this file if they already exist. Currently only works for bash.
 
     Parameters
     ----------
@@ -64,15 +63,6 @@ def change_rc(spark_home, spark_python, py4j):
             bashrc.write("export PYTHONPATH=" + spark_python + ":" + 
                          py4j + ":$PYTHONPATH\n\n")
     
-    cshrc_location = os.path.expanduser("~/.cshrc")
-    
-    if os.path.isfile(cshrc_location):
-        with open(cshrc_location, 'a') as cshrc:
-            cshrc.write("\n# Added by findspark\n")
-            cshrc.write("setenv SPARK_HOME " + spark_home + "\n")
-            cshrc.write("setenv PYTHONPATH \"" + spark_python + ":" +
-                        py4j + ":\"$PYTHONPATH")
- 
 
 def edit_ipython_profile(spark_home, spark_python, py4j):
     """Adds a startup file to the current IPython profile to import pyspark.
