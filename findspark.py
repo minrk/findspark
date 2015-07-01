@@ -107,12 +107,12 @@ def init(spark_home=None, edit_rc=False, edit_profile=False):
     ----------
     spark_home : str, optional, default = None
         Path to Spark installation, will try to find automatically
-        if not provided
+        if not provided.
     edit_rc : bool, optional, default = False
         Whether to attempt to persist changes by appending to shell
         config.
     edit_profile : bool, optional, default = False
-        Whether to create a create an IPython startup file to automatically
+        Whether to create an IPython startup file to automatically
         configure and import pyspark.
     """
 
