@@ -36,7 +36,8 @@ findspark.find()
 
 Findspark can add a startup file to the current IPython profile so that the enviornment vaiables will be properly set and pyspark will be imported upon IPython startup. This file is created when `edit_profile` is set to true.
 
-```ipython --profile=myprofile
+```
+ipython --profile=myprofile
 findspark.init('/path/to/spark_home', edit_profile=True)
 ```
 
