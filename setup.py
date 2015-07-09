@@ -20,7 +20,7 @@ setup(
     py_modules=['findspark'],
     description="Find pyspark to make it importable.",
     long_description="""
-        Provides findspark.find_spark() to make pyspark importable as a regular library.
+        Provides findspark.init() to make pyspark importable as a regular library.
     """,
     license="BSD (3-clause)",
     author="Min RK",
