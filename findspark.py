@@ -97,7 +97,7 @@ def edit_ipython_profile(spark_home, spark_python, py4j):
         startup_file.write("import pyspark\n")       
         
 
-def init(spark_home=None, edit_rc=False, edit_profile=False):
+def init(spark_home=None, python_path=None, edit_rc=False, edit_profile=False):
     """Make pyspark importable.
 
     Sets environmental variables and adds dependencies to sys.path.
@@ -108,6 +108,9 @@ def init(spark_home=None, edit_rc=False, edit_profile=False):
     spark_home : str, optional, default = None
         Path to Spark installation, will try to find automatically
         if not provided.
+    python_path : str, optional, default = None
+        Path to Python for Spark workers (PYSPARK_PYTHON),
+        will use the currently running Python if not provided.
     edit_rc : bool, optional, default = False
         Whether to attempt to persist changes by appending to shell
         config.
@@ -119,8 +122,14 @@ def init(spark_home=None, edit_rc=False, edit_profile=False):
     if not spark_home:
         spark_home = find()
 
+    if not python_path:
+        python_path = sys.executable
+
     # ensure SPARK_HOME is defined
     os.environ['SPARK_HOME'] = spark_home
+
+    # ensure PYSPARK_PYTHON is defined
+    os.environ['PYSPARK_PYTHON'] = python_path
 
     # add pyspark to sys.path
     spark_python = os.path.join(spark_home, 'python')
