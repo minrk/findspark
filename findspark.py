@@ -7,8 +7,6 @@ Otherwise, common locations for spark (currently only Homebrew's default) will b
 from glob import glob
 import os
 import sys
-import subprocess
-from IPython import get_ipython
 
 __version__ = '0.0.5'
 
@@ -78,7 +76,7 @@ def edit_ipython_profile(spark_home, spark_python, py4j):
     py4j : str
         Path to py4j library.
     """
-
+    from IPython import get_ipython
     ip = get_ipython()
 
     if ip:
