@@ -36,9 +36,9 @@ def find():
 
 
 def change_rc(spark_home, spark_python, py4j):
-    """Persists changes to enviornment by changing shell config.
+    """Persists changes to environment by changing shell config.
 
-    Adds lines to .bashrc to set enviornment variables 
+    Adds lines to .bashrc to set environment variables 
     including the adding of dependencies to the system path. Will only
     edit this file if they already exist. Currently only works for bash.
 
@@ -65,7 +65,7 @@ def change_rc(spark_home, spark_python, py4j):
 def edit_ipython_profile(spark_home, spark_python, py4j):
     """Adds a startup file to the current IPython profile to import pyspark.
     
-    The startup file sets the required enviornment variables and imports pyspark.
+    The startup file sets the required environment variables and imports pyspark.
 
     Parameters
     ----------
@@ -98,7 +98,7 @@ def edit_ipython_profile(spark_home, spark_python, py4j):
 def init(spark_home=None, python_path=None, edit_rc=False, edit_profile=False):
     """Make pyspark importable.
 
-    Sets environmental variables and adds dependencies to sys.path.
+    Sets environment variables and adds dependencies to sys.path.
     If no Spark location is provided, will try to find an installation.
 
     Parameters
