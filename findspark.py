@@ -139,3 +139,19 @@ def init(spark_home=None, python_path=None, edit_rc=False, edit_profile=False):
     
     if edit_profile:
         edit_ipython_profile(spark_home, spark_python, py4j)
+
+def add_packages(packages):
+    """Add external jars to the pyspark interpreter.	
+    
+    Set the PYSPARK_SUBMIT_ARGS properly.
+
+    Parameters
+    ----------
+    packages: list of package names in string format    
+    """
+    
+    #if the parameter is a string, convert to a single element list   
+    if isinstance(packages,str):
+        packages = [packages]
+   
+    os.environ["PYSPARK_SUBMIT_ARGS"] = "--packages "+ ",".join(packages)  +" pyspark-shell"
