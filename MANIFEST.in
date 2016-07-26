@@ -1,0 +1,6 @@
+include README*
+include *.md
+include setup.cfg
+
+prune dist
+prune build
