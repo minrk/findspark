@@ -170,5 +170,5 @@ def add_jars(jars):
     if isinstance(jars,str):
         jars = [jars]
    
-    os.environ["PYSPARK_SUBMIT_ARGS"] = " --jars "+ ",".join(packages)  +" pyspark-shell"
+    os.environ["PYSPARK_SUBMIT_ARGS"] = " --jars "+ ",".join(jars)  +" pyspark-shell"
 
