@@ -121,7 +121,7 @@ def init(spark_home=None, python_path=None, edit_rc=False, edit_profile=False):
         spark_home = find()
 
     if not python_path:
-        python_path = sys.executable
+        python_path = os.environ.get('PYSPARK_PYTHON', sys.executable)
 
     # ensure SPARK_HOME is defined
     os.environ['SPARK_HOME'] = spark_home
