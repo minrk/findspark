@@ -1,5 +1,9 @@
 # Changes in findspark
 
+## 1.3.0
+
+- Add /usr/lib/spark to common search path (Amazon EMR)
+
 ## 1.2.0
 
 - Add `findspark.add_jars`
