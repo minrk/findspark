@@ -14,7 +14,7 @@ import pyspark
 sc = pyspark.SparkContext(appName="myAppName")
 ```
 
-Without any arguments, the SPARK_HOME environmental variable will be used,
+Without any arguments, the SPARK_HOME environment variable will be used,
 and if that isn't set, other possible install locations will be checked. If
 you've installed spark with
 
@@ -34,14 +34,14 @@ To verify the automatically detected location, call
 findspark.find()
 ```
 
-Findspark can add a startup file to the current IPython profile so that the enviornment vaiables will be properly set and pyspark will be imported upon IPython startup. This file is created when `edit_profile` is set to true.
+Findspark can add a startup file to the current IPython profile so that the environment vaiables will be properly set and pyspark will be imported upon IPython startup. This file is created when `edit_profile` is set to true.
 
 ```
 ipython --profile=myprofile
 findspark.init('/path/to/spark_home', edit_profile=True)
 ```
 
-Findspark can also add to the .bashrc configuration file if it is present so that the enviornment variables will be properly set whenever a new shell is opened. This is enabled by setting the optional argument `edit_rc` to true.
+Findspark can also add to the .bashrc configuration file if it is present so that the environment variables will be properly set whenever a new shell is opened. This is enabled by setting the optional argument `edit_rc` to true.
 
 ```python
 findspark.init('/path/to/spark_home', edit_rc=True)
