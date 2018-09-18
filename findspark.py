@@ -8,7 +8,7 @@ from glob import glob
 import os
 import sys
 
-__version__ = '1.4.0.dev'
+__version__ = '1.4.1.dev'
 
 
 def find():
@@ -39,7 +39,7 @@ def find():
 def change_rc(spark_home, spark_python, py4j):
     """Persists changes to environment by changing shell config.
 
-    Adds lines to .bashrc to set environment variables 
+    Adds lines to .bashrc to set environment variables
     including the adding of dependencies to the system path. Will only
     edit this file if they already exist. Currently only works for bash.
 
@@ -59,13 +59,13 @@ def change_rc(spark_home, spark_python, py4j):
         with open(bashrc_location, 'a') as bashrc:
             bashrc.write("\n# Added by findspark\n")
             bashrc.write("export SPARK_HOME=" + spark_home + "\n")
-            bashrc.write("export PYTHONPATH=" + spark_python + ":" + 
+            bashrc.write("export PYTHONPATH=" + spark_python + ":" +
                          py4j + ":$PYTHONPATH\n\n")
-    
+
 
 def edit_ipython_profile(spark_home, spark_python, py4j):
     """Adds a startup file to the current IPython profile to import pyspark.
-    
+
     The startup file sets the required environment variables and imports pyspark.
 
     Parameters
@@ -87,14 +87,14 @@ def edit_ipython_profile(spark_home, spark_python, py4j):
         profile_dir = locate_profile()
 
     startup_file_loc = os.path.join(profile_dir, "startup", "findspark.py")
-        
+
     with open(startup_file_loc, 'w') as startup_file:
         #Lines of code to be run when IPython starts
         startup_file.write("import sys, os\n")
         startup_file.write("os.environ['SPARK_HOME'] = '" + spark_home + "'\n")
         startup_file.write("sys.path[:0] = " + str([spark_python, py4j]) + "\n")
-        startup_file.write("import pyspark\n")       
-        
+        startup_file.write("import pyspark\n")
+
 
 def init(spark_home=None, python_path=None, edit_rc=False, edit_profile=False):
     """Make pyspark importable.
@@ -130,46 +130,54 @@ def init(spark_home=None, python_path=None, edit_rc=False, edit_profile=False):
     # ensure PYSPARK_PYTHON is defined
     os.environ['PYSPARK_PYTHON'] = python_path
 
+    if not os.environ.get("PYSPARK_SUBMIT_ARGS", None):
+        os.environ["PYSPARK_SUBMIT_ARGS"] = ''
+
     # add pyspark to sys.path
     spark_python = os.path.join(spark_home, 'python')
     py4j = glob(os.path.join(spark_python, 'lib', 'py4j-*.zip'))[0]
     sys.path[:0] = [spark_python, py4j]
-    
+
     if edit_rc:
-        change_rc(spark_home, spark_python, py4j) 
-    
+        change_rc(spark_home, spark_python, py4j)
+
     if edit_profile:
         edit_ipython_profile(spark_home, spark_python, py4j)
 
+def _add_to_submit_args(s):
+    """Adds string s to the PYSPARK_SUBMIT_ARGS env var"""
+    new_args = os.environ.get("PYSPARK_SUBMIT_ARGS", "") + (" %s" % s)
+    os.environ["PYSPARK_SUBMIT_ARGS"] = new_args
+    return new_args
+
 def add_packages(packages):
-    """Add external packages to the pyspark interpreter.	
-    
+    """Add external packages to the pyspark interpreter.
+
     Set the PYSPARK_SUBMIT_ARGS properly.
 
     Parameters
     ----------
-    packages: list of package names in string format    
+    packages: list of package names in string format
     """
-    
-    #if the parameter is a string, convert to a single element list   
+
+    #if the parameter is a string, convert to a single element list
     if isinstance(packages,str):
         packages = [packages]
-   
-    os.environ["PYSPARK_SUBMIT_ARGS"] += " --packages "+ ",".join(packages)  +" pyspark-shell"
-    
+
+    _add_to_submit_args("--packages "+ ",".join(packages)  +" pyspark-shell")
+
 def add_jars(jars):
-    """Add external jars to the pyspark interpreter.	
-    
+    """Add external jars to the pyspark interpreter.
+
     Set the PYSPARK_SUBMIT_ARGS properly.
 
     Parameters
     ----------
-    jars: list of path to jars in string format    
+    jars: list of path to jars in string format
     """
-    
-    #if the parameter is a string, convert to a single element list   
+
+    #if the parameter is a string, convert to a single element list
     if isinstance(jars,str):
         jars = [jars]
-   
-    os.environ["PYSPARK_SUBMIT_ARGS"] = " --jars "+ ",".join(jars)  +" pyspark-shell"
 
+    _add_to_submit_args("--jars "+ ",".join(jars)  +" pyspark-shell")
