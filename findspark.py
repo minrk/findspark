@@ -150,6 +150,13 @@ def _add_to_submit_args(s):
     os.environ["PYSPARK_SUBMIT_ARGS"] = new_args + " pyspark-shell"
     return new_args
 
+def _add_attribute(name, value):
+    #if the parameter is a string, convert to a single element list
+    if isinstance(value,str):
+        value = [value]
+
+    return " --{} ".format(name)+ ",".join(value)
+
 def add_packages(packages, update_env=True):
     """Add external packages to the pyspark interpreter.
 
@@ -159,12 +166,7 @@ def add_packages(packages, update_env=True):
     ----------
     packages: list of package names in string format
     """
-
-    #if the parameter is a string, convert to a single element list
-    if isinstance(packages,str):
-        packages = [packages]
-
-    pkg_str = "--packages "+ ",".join(packages)
+    pkg_str = _add_attribute("packages", packages)
     if update_env:
         _add_to_submit_args(pkg_str)
     else:
@@ -179,19 +181,15 @@ def add_jars(jars, update_env=True):
     ----------
     jars: list of path to jars in string format
     """
-
-    #if the parameter is a string, convert to a single element list
-    if isinstance(jars,str):
-        jars = [jars]
-
-    jars_str = "--jars "+ ",".join(packages)
+    jars_str = _add_attribute("jars", packages)
     if update_env:
         _add_to_submit_args(jars_str)
     else:
         return jars_str
 
-def add_packages_and_jars(packages, jars):
+def add_submit_args(dict_data):
     cmd_str = ""
-    cmd_str += add_packages(packages, False)
-    cmd_str += add_jars(jars, False)
+    for key in sorted(dict_data):
+        cmd_str += _add_attribute(key, dict_data[key])
     _add_to_submit_args(cmd_str)
+
