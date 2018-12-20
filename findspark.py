@@ -147,10 +147,10 @@ def init(spark_home=None, python_path=None, edit_rc=False, edit_profile=False):
 def _add_to_submit_args(s):
     """Adds string s to the PYSPARK_SUBMIT_ARGS env var"""
     new_args = os.environ.get("PYSPARK_SUBMIT_ARGS", "") + (" %s" % s)
-    os.environ["PYSPARK_SUBMIT_ARGS"] = new_args
+    os.environ["PYSPARK_SUBMIT_ARGS"] = new_args + " pyspark-shell"
     return new_args
 
-def add_packages(packages):
+def add_packages(packages, update_env=True):
     """Add external packages to the pyspark interpreter.
 
     Set the PYSPARK_SUBMIT_ARGS properly.
@@ -164,9 +164,13 @@ def add_packages(packages):
     if isinstance(packages,str):
         packages = [packages]
 
-    _add_to_submit_args("--packages "+ ",".join(packages)  +" pyspark-shell")
+    pkg_str = "--packages "+ ",".join(packages)
+    if update_env:
+        _add_to_submit_args(pkg_str)
+    else:
+        return pkg_str
 
-def add_jars(jars):
+def add_jars(jars, update_env=True):
     """Add external jars to the pyspark interpreter.
 
     Set the PYSPARK_SUBMIT_ARGS properly.
@@ -180,4 +184,14 @@ def add_jars(jars):
     if isinstance(jars,str):
         jars = [jars]
 
-    _add_to_submit_args("--jars "+ ",".join(jars)  +" pyspark-shell")
+    jars_str = "--jars "+ ",".join(packages)
+    if update_env:
+        _add_to_submit_args(jars_str)
+    else:
+        return jars_str
+
+def add_packages_and_jars(packages, jars):
+    cmd_str = ""
+    cmd_str += add_packages(packages, False)
+    cmd_str += add_jars(jars, False)
+    _add_to_submit_args(cmd_str)
