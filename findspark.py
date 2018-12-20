@@ -188,6 +188,17 @@ def add_jars(jars, update_env=True):
         return jars_str
 
 def add_submit_args(dict_data):
+    """ Add all given properties in to the pyspark interperter.
+    dict_data: a dictionary of the given properites and their values to add 
+    Example:
+    dict_data={"packages":["org.apache.hadoop:hadoop-aws:2.7.3", "org.postgresql:postgresql:42.2.5", "mysql:mysql-connector-java:5.1.39"], 
+                           "driver-class-path": ["/homeuser/.ivy2/jars/mysql_mysql-connector-java-5.1.47.jar"]}
+    
+    add_submit_args(dict_data) will return:
+    
+    os.enviorn["PYSPARK_SUBMIT_ARGS"] = "--driver-class-path /home/nimrod/.ivy2/jars/mysql_mysql-connector-java-5.1.47.jar --packages org.apache.hadoop:hadoop-aws:2.7.3,org.postgresql:postgresql:42.2.5,mysql:mysql-connector-java:5.1.39 pyspark-shell"
+    
+    """
     cmd_str = ""
     for key in sorted(dict_data):
         cmd_str += _add_attribute(key, dict_data[key])
