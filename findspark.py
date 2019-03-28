@@ -22,7 +22,8 @@ def find():
     if not spark_home:
         for path in [
             '/usr/local/opt/apache-spark/libexec', # OS X Homebrew
-            '/usr/lib/spark/' # AWS Amazon EMR
+            '/usr/lib/spark/', # AWS Amazon EMR
+            '/usr/local/spark/' # common linux path for spark
             # Any other common places to look?
         ]:
             if os.path.exists(path):
