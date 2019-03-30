@@ -23,7 +23,8 @@ def find():
         for path in [
             '/usr/local/opt/apache-spark/libexec', # OS X Homebrew
             '/usr/lib/spark/', # AWS Amazon EMR
-            '/usr/local/spark/' # common linux path for spark
+            '/usr/local/spark/', # common linux path for spark
+            '/opt/spark/' # other common linux path for spark
             # Any other common places to look?
         ]:
             if os.path.exists(path):
