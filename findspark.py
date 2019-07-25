@@ -137,7 +137,10 @@ def init(spark_home=None, python_path=None, edit_rc=False, edit_profile=False):
 
     # add pyspark to sys.path
     spark_python = os.path.join(spark_home, 'python')
-    py4j = glob(os.path.join(spark_python, 'lib', 'py4j-*.zip'))[0]
+    try:
+        py4j = glob(os.path.join(spark_python, 'lib', 'py4j-*.zip'))[0]
+    except IndexError:
+        raise Exception("Unable to find py4j, your SPARK_HOME may not be configured correctly")
     sys.path[:0] = [spark_python, py4j]
 
     if edit_rc:
