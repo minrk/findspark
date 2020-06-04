@@ -157,11 +157,30 @@ def init(spark_home=None, python_path=None, edit_rc=False, edit_profile=False):
         edit_ipython_profile(spark_home, spark_python, py4j)
 
 
-def _add_to_submit_args(s):
-    """Adds string s to the PYSPARK_SUBMIT_ARGS env var"""
-    new_args = os.environ.get("PYSPARK_SUBMIT_ARGS", "") + (" %s" % s)
-    os.environ["PYSPARK_SUBMIT_ARGS"] = new_args
-    return new_args
+def _add_to_submit_args(to_add, exe=None):
+    """Add string s to the PYSPARK_SUBMIT_ARGS env var
+
+    exe is added to the end (default: pyspark-shell)
+    """
+    existing_args = os.environ.get("PYSPARK_SUBMIT_ARGS", "")
+    if existing_args:
+        args, existing_exe = existing_args.rpartition(" ")
+    else:
+        args = ""
+        existing_exe = ""
+
+    if not exe:
+        exe = existing_exe or "pyspark-shell"
+
+    chunks = []
+    if args:
+        chunks.append(args)
+    chunks.append(to_add)
+    chunks.append(exe)
+
+    submit_args = " ".join(chunks)
+    os.environ["PYSPARK_SUBMIT_ARGS"] = submit_args
+    return submit_args
 
 
 def add_packages(packages):
@@ -178,7 +197,7 @@ def add_packages(packages):
     if isinstance(packages, str):
         packages = [packages]
 
-    _add_to_submit_args("--packages " + ",".join(packages) + " pyspark-shell")
+    _add_to_submit_args("--packages " + ",".join(packages))
 
 
 def add_jars(jars):
@@ -195,4 +214,4 @@ def add_jars(jars):
     if isinstance(jars, str):
         jars = [jars]
 
-    _add_to_submit_args("--jars " + ",".join(jars) + " pyspark-shell")
+    _add_to_submit_args("--jars " + ",".join(jars))
