@@ -1,5 +1,10 @@
 # Changes in findspark
 
+## 1.4.0
+
+- Add /usr/local/spark, /opt/spark to common search path
+- Fix add_packages, add_jar when PYSPARK_SUBMIT_ARGS is undefined or or both are called
+
 ## 1.3.0
 
 - Add /usr/lib/spark to common search path (Amazon EMR)
