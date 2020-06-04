@@ -17,14 +17,14 @@ def find():
     Will first check the SPARK_HOME env variable, and otherwise
     search common installation locations, e.g. from homebrew
     """
-    spark_home = os.environ.get('SPARK_HOME', None)
+    spark_home = os.environ.get("SPARK_HOME", None)
 
     if not spark_home:
         for path in [
-            '/usr/local/opt/apache-spark/libexec', # OS X Homebrew
-            '/usr/lib/spark/', # AWS Amazon EMR
-            '/usr/local/spark/', # common linux path for spark
-            '/opt/spark/', # other common linux path for spark
+            "/usr/local/opt/apache-spark/libexec",  # macOS Homebrew
+            "/usr/lib/spark/",  # AWS Amazon EMR
+            "/usr/local/spark/",  # common linux path for spark
+            "/opt/spark/",  # other common linux path for spark
             # Any other common places to look?
         ]:
             if os.path.exists(path):
@@ -32,8 +32,10 @@ def find():
                 break
 
     if not spark_home:
-        raise ValueError("Couldn't find Spark, make sure SPARK_HOME env is set"
-                         " or Spark is in an expected location (e.g. from homebrew installation).")
+        raise ValueError(
+            "Couldn't find Spark, make sure SPARK_HOME env is set"
+            " or Spark is in an expected location (e.g. from homebrew installation)."
+        )
 
     return spark_home
 
@@ -58,11 +60,12 @@ def change_rc(spark_home, spark_python, py4j):
     bashrc_location = os.path.expanduser("~/.bashrc")
 
     if os.path.isfile(bashrc_location):
-        with open(bashrc_location, 'a') as bashrc:
+        with open(bashrc_location, "a") as bashrc:
             bashrc.write("\n# Added by findspark\n")
             bashrc.write("export SPARK_HOME=" + spark_home + "\n")
-            bashrc.write("export PYTHONPATH=" + spark_python + ":" +
-                         py4j + ":$PYTHONPATH\n\n")
+            bashrc.write(
+                "export PYTHONPATH=" + spark_python + ":" + py4j + ":$PYTHONPATH\n\n"
+            )
 
 
 def edit_ipython_profile(spark_home, spark_python, py4j):
@@ -80,18 +83,20 @@ def edit_ipython_profile(spark_home, spark_python, py4j):
         Path to py4j library.
     """
     from IPython import get_ipython
+
     ip = get_ipython()
 
     if ip:
         profile_dir = ip.profile_dir.location
     else:
         from IPython.utils.path import locate_profile
+
         profile_dir = locate_profile()
 
     startup_file_loc = os.path.join(profile_dir, "startup", "findspark.py")
 
-    with open(startup_file_loc, 'w') as startup_file:
-        #Lines of code to be run when IPython starts
+    with open(startup_file_loc, "w") as startup_file:
+        # Lines of code to be run when IPython starts
         startup_file.write("import sys, os\n")
         startup_file.write("os.environ['SPARK_HOME'] = '" + spark_home + "'\n")
         startup_file.write("sys.path[:0] = " + str([spark_python, py4j]) + "\n")
@@ -124,23 +129,25 @@ def init(spark_home=None, python_path=None, edit_rc=False, edit_profile=False):
         spark_home = find()
 
     if not python_path:
-        python_path = os.environ.get('PYSPARK_PYTHON', sys.executable)
+        python_path = os.environ.get("PYSPARK_PYTHON", sys.executable)
 
     # ensure SPARK_HOME is defined
-    os.environ['SPARK_HOME'] = spark_home
+    os.environ["SPARK_HOME"] = spark_home
 
     # ensure PYSPARK_PYTHON is defined
-    os.environ['PYSPARK_PYTHON'] = python_path
+    os.environ["PYSPARK_PYTHON"] = python_path
 
     if not os.environ.get("PYSPARK_SUBMIT_ARGS", None):
-        os.environ["PYSPARK_SUBMIT_ARGS"] = ''
+        os.environ["PYSPARK_SUBMIT_ARGS"] = ""
 
     # add pyspark to sys.path
-    spark_python = os.path.join(spark_home, 'python')
+    spark_python = os.path.join(spark_home, "python")
     try:
-        py4j = glob(os.path.join(spark_python, 'lib', 'py4j-*.zip'))[0]
+        py4j = glob(os.path.join(spark_python, "lib", "py4j-*.zip"))[0]
     except IndexError:
-        raise Exception("Unable to find py4j, your SPARK_HOME may not be configured correctly")
+        raise Exception(
+            "Unable to find py4j, your SPARK_HOME may not be configured correctly"
+        )
     sys.path[:0] = [spark_python, py4j]
 
     if edit_rc:
@@ -149,11 +156,13 @@ def init(spark_home=None, python_path=None, edit_rc=False, edit_profile=False):
     if edit_profile:
         edit_ipython_profile(spark_home, spark_python, py4j)
 
+
 def _add_to_submit_args(s):
     """Adds string s to the PYSPARK_SUBMIT_ARGS env var"""
     new_args = os.environ.get("PYSPARK_SUBMIT_ARGS", "") + (" %s" % s)
     os.environ["PYSPARK_SUBMIT_ARGS"] = new_args
     return new_args
+
 
 def add_packages(packages):
     """Add external packages to the pyspark interpreter.
@@ -165,11 +174,12 @@ def add_packages(packages):
     packages: list of package names in string format
     """
 
-    #if the parameter is a string, convert to a single element list
-    if isinstance(packages,str):
+    # if the parameter is a string, convert to a single element list
+    if isinstance(packages, str):
         packages = [packages]
 
-    _add_to_submit_args("--packages "+ ",".join(packages)  +" pyspark-shell")
+    _add_to_submit_args("--packages " + ",".join(packages) + " pyspark-shell")
+
 
 def add_jars(jars):
     """Add external jars to the pyspark interpreter.
@@ -181,8 +191,8 @@ def add_jars(jars):
     jars: list of path to jars in string format
     """
 
-    #if the parameter is a string, convert to a single element list
-    if isinstance(jars,str):
+    # if the parameter is a string, convert to a single element list
+    if isinstance(jars, str):
         jars = [jars]
 
-    _add_to_submit_args("--jars "+ ",".join(jars)  +" pyspark-shell")
+    _add_to_submit_args("--jars " + ",".join(jars) + " pyspark-shell")
