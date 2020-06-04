@@ -1,7 +1,7 @@
 """Find spark home, and initialize by adding pyspark to sys.path.
 
 If SPARK_HOME is defined, it will be used to put pyspark on sys.path.
-Otherwise, common locations for spark (currently only Homebrew's default) will be searched.
+Otherwise, common locations for spark will be searched.
 """
 
 from glob import glob
@@ -136,9 +136,6 @@ def init(spark_home=None, python_path=None, edit_rc=False, edit_profile=False):
 
     # ensure PYSPARK_PYTHON is defined
     os.environ["PYSPARK_PYTHON"] = python_path
-
-    if not os.environ.get("PYSPARK_SUBMIT_ARGS", None):
-        os.environ["PYSPARK_SUBMIT_ARGS"] = ""
 
     # add pyspark to sys.path
     spark_python = os.path.join(spark_home, "python")
