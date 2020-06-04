@@ -1,5 +1,9 @@
 # Changes in findspark
 
+## 1.4.1
+
+- Avoid setting empty PYSPARK_SUBMIT_ARGS
+
 ## 1.4.0
 
 - Add /usr/local/spark, /opt/spark to common search path
