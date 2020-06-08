@@ -154,28 +154,16 @@ def init(spark_home=None, python_path=None, edit_rc=False, edit_profile=False):
         edit_ipython_profile(spark_home, spark_python, py4j)
 
 
-def _add_to_submit_args(to_add, exe=None):
+def _add_to_submit_args(to_add):
     """Add string s to the PYSPARK_SUBMIT_ARGS env var
-
-    exe is added to the end (default: pyspark-shell)
     """
     existing_args = os.environ.get("PYSPARK_SUBMIT_ARGS", "")
-    if existing_args:
-        args, _, existing_exe = existing_args.rpartition(" ")
-    else:
-        args = ""
-        existing_exe = ""
-
-    if not exe:
-        exe = existing_exe or "pyspark-shell"
-
-    chunks = []
-    if args:
-        chunks.append(args)
-    chunks.append(to_add)
-    chunks.append(exe)
-
-    submit_args = " ".join(chunks)
+    if not existing_args:
+        # if empty, start with default pyspark-shell
+        # ref: pyspark.java_gateway.launch_gateway
+        existing_args = "pyspark-shell"
+    # add new args to front to avoid insert after executable
+    submit_args = "{} {}".format(to_add, existing_args)
     os.environ["PYSPARK_SUBMIT_ARGS"] = submit_args
     return submit_args
 
