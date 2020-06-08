@@ -161,7 +161,7 @@ def _add_to_submit_args(to_add, exe=None):
     """
     existing_args = os.environ.get("PYSPARK_SUBMIT_ARGS", "")
     if existing_args:
-        args, existing_exe = existing_args.rpartition(" ")
+        args, _, existing_exe = existing_args.rpartition(" ")
     else:
         args = ""
         existing_exe = ""
