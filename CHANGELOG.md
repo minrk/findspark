@@ -1,5 +1,10 @@
 # Changes in findspark
 
+## 1.4.2
+
+- Fix regression in 1.4.0 when adding to existing PYSPARK_SUBMIT_ARGS.
+  New args are now added to the front.
+
 ## 1.4.1
 
 - Avoid setting empty PYSPARK_SUBMIT_ARGS
