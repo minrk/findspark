@@ -50,7 +50,7 @@ def find():
     return spark_home
 
 
-def change_rc(spark_home, sys_path=None):
+def _edit_rc(spark_home, sys_path=None):
     """Persists changes to environment by changing shell config.
 
     Adds lines to .bashrc to set environment variables
@@ -81,7 +81,7 @@ def change_rc(spark_home, sys_path=None):
             bashrc.write("\n")
 
 
-def edit_ipython_profile(spark_home, sys_path=None):
+def _edit_ipython_profile(spark_home, sys_path=None):
     """Adds a startup file to the current IPython profile to import pyspark.
 
     The startup file sets the required environment variables and imports pyspark.
@@ -168,10 +168,10 @@ def init(spark_home=None, python_path=None, edit_rc=False, edit_profile=False):
         sys_path = None
 
     if edit_rc:
-        change_rc(spark_home, sys_path)
+        _edit_rc(spark_home, sys_path)
 
     if edit_profile:
-        edit_ipython_profile(spark_home, sys_path)
+        _edit_ipython_profile(spark_home, sys_path)
 
 
 def _add_to_submit_args(to_add):
