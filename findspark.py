@@ -8,7 +8,7 @@ from glob import glob
 import os
 import sys
 
-__version__ = "1.4.2"
+__version__ = "2.0.0"
 
 
 def find():
@@ -20,6 +20,8 @@ def find():
     spark_home = os.environ.get("SPARK_HOME", None)
 
     if not spark_home:
+        if "pyspark" in sys.modules:
+            return os.path.dirname(sys.modules["pyspark"].__file__)
         for path in [
             "/usr/local/opt/apache-spark/libexec",  # macOS Homebrew
             "/usr/lib/spark/",  # AWS Amazon EMR
@@ -31,6 +33,14 @@ def find():
                 spark_home = path
                 break
 
+    # last resort: try importing pyspark (pip-installed, already on sys.path)
+    try:
+        import pyspark
+    except ImportError:
+        pass
+    else:
+        spark_home = os.path.dirname(pyspark.__file__)
+
     if not spark_home:
         raise ValueError(
             "Couldn't find Spark, make sure SPARK_HOME env is set"
@@ -40,7 +50,7 @@ def find():
     return spark_home
 
 
-def change_rc(spark_home, spark_python, py4j):
+def _edit_rc(spark_home, sys_path=None):
     """Persists changes to environment by changing shell config.
 
     Adds lines to .bashrc to set environment variables
@@ -51,10 +61,9 @@ def change_rc(spark_home, spark_python, py4j):
     ----------
     spark_home : str
         Path to Spark installation.
-    spark_python : str
-        Path to python subdirectory of Spark installation.
-    py4j : str
-        Path to py4j library.
+    sys_path: list(str)
+        Paths (if any) to be added to $PYTHONPATH.
+        Should include python subdirectory of Spark installation, py4j
     """
 
     bashrc_location = os.path.expanduser("~/.bashrc")
@@ -62,13 +71,17 @@ def change_rc(spark_home, spark_python, py4j):
     if os.path.isfile(bashrc_location):
         with open(bashrc_location, "a") as bashrc:
             bashrc.write("\n# Added by findspark\n")
-            bashrc.write("export SPARK_HOME=" + spark_home + "\n")
-            bashrc.write(
-                "export PYTHONPATH=" + spark_python + ":" + py4j + ":$PYTHONPATH\n\n"
-            )
+            bashrc.write("export SPARK_HOME={}\n".format(spark_home))
+            if sys_path:
+                bashrc.write(
+                    "export PYTHONPATH={}\n".format(
+                        os.pathsep.join(sys_path + ["$PYTHONPATH"])
+                    )
+                )
+            bashrc.write("\n")
 
 
-def edit_ipython_profile(spark_home, spark_python, py4j):
+def _edit_ipython_profile(spark_home, sys_path=None):
     """Adds a startup file to the current IPython profile to import pyspark.
 
     The startup file sets the required environment variables and imports pyspark.
@@ -77,10 +90,9 @@ def edit_ipython_profile(spark_home, spark_python, py4j):
     ----------
     spark_home : str
         Path to Spark installation.
-    spark_python : str
-        Path to python subdirectory of Spark installation.
-    py4j : str
-        Path to py4j library.
+    sys_path : list(str)
+        Paths to be added to sys.path.
+        Should include python subdirectory of Spark installation, py4j
     """
     from IPython import get_ipython
 
@@ -98,8 +110,9 @@ def edit_ipython_profile(spark_home, spark_python, py4j):
     with open(startup_file_loc, "w") as startup_file:
         # Lines of code to be run when IPython starts
         startup_file.write("import sys, os\n")
-        startup_file.write("os.environ['SPARK_HOME'] = '" + spark_home + "'\n")
-        startup_file.write("sys.path[:0] = " + str([spark_python, py4j]) + "\n")
+        startup_file.write("os.environ['SPARK_HOME'] = {}\n".format(repr(spark_home)))
+        if sys_path:
+            startup_file.write("sys.path[:0] = {}\n".format(repr(sys_path)))
         startup_file.write("import pyspark\n")
 
 
@@ -138,25 +151,31 @@ def init(spark_home=None, python_path=None, edit_rc=False, edit_profile=False):
     os.environ["PYSPARK_PYTHON"] = python_path
 
     # add pyspark to sys.path
-    spark_python = os.path.join(spark_home, "python")
-    try:
-        py4j = glob(os.path.join(spark_python, "lib", "py4j-*.zip"))[0]
-    except IndexError:
-        raise Exception(
-            "Unable to find py4j, your SPARK_HOME may not be configured correctly"
-        )
-    sys.path[:0] = [spark_python, py4j]
+
+    if "pyspark" not in sys.modules:
+        spark_python = os.path.join(spark_home, "python")
+        try:
+            py4j = glob(os.path.join(spark_python, "lib", "py4j-*.zip"))[0]
+        except IndexError:
+            raise Exception(
+                "Unable to find py4j in {}, your SPARK_HOME may not be configured correctly".format(
+                    spark_python
+                )
+            )
+        sys.path[:0] = sys_path = [spark_python, py4j]
+    else:
+        # already imported, no need to patch sys.path
+        sys_path = None
 
     if edit_rc:
-        change_rc(spark_home, spark_python, py4j)
+        _edit_rc(spark_home, sys_path)
 
     if edit_profile:
-        edit_ipython_profile(spark_home, spark_python, py4j)
+        _edit_ipython_profile(spark_home, sys_path)
 
 
 def _add_to_submit_args(to_add):
-    """Add string s to the PYSPARK_SUBMIT_ARGS env var
-    """
+    """Add string s to the PYSPARK_SUBMIT_ARGS env var"""
     existing_args = os.environ.get("PYSPARK_SUBMIT_ARGS", "")
     if not existing_args:
         # if empty, start with default pyspark-shell
