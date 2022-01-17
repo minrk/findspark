@@ -1,5 +1,12 @@
 # Changes in findspark
 
+## 2.0.0
+
+- Do nothing if `pyspark` has already been successfully imported.
+- Give private methods `change_rc` and `edit_ipython_profile` private names,
+  so they don't seem like public API methods.
+
+
 ## 1.4.2
 
 - Fix regression in 1.4.0 when adding to existing PYSPARK_SUBMIT_ARGS.
