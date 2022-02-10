@@ -33,13 +33,14 @@ def find():
                 spark_home = path
                 break
 
-    # last resort: try importing pyspark (pip-installed, already on sys.path)
-    try:
-        import pyspark
-    except ImportError:
-        pass
-    else:
-        spark_home = os.path.dirname(pyspark.__file__)
+    if not spark_home:
+        # last resort: try importing pyspark (pip-installed, already on sys.path)
+        try:
+            import pyspark
+        except ImportError:
+            pass
+        else:
+            spark_home = os.path.dirname(pyspark.__file__)
 
     if not spark_home:
         raise ValueError(
