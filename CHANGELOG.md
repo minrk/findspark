@@ -1,5 +1,11 @@
 # Changes in findspark
 
+## 2.0.1
+
+- Fix regression in 2.0.0 where an importable pyspark
+  could result in overriding a located SPARK_HOME,
+  rather than being the intended last resort.
+
 ## 2.0.0
 
 - Do nothing if `pyspark` has already been successfully imported.
